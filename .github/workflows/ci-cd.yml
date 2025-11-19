@@ -32,6 +32,6 @@ jobs:
           pip install bandit
           bandit -r .
       - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v2
+        uses: returntocorp/semgrep-action@v3
         with:
           semgrep_args: --config=p/ci
