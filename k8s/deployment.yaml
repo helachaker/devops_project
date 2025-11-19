@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devops-api
+  template:
+    metadata:
+      labels:
+        app: devops-api
+    spec:
+      containers:
+      - name: api
+        image: yourdockerhubuser/devops-api:latest
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
