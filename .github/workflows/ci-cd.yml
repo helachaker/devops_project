@@ -10,28 +10,47 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the repo
       - uses: actions/checkout@v4
 
+      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Step 4: Run unit tests
       - name: Run tests
-        run: PYTHONPATH=. pytest -q  
+        run: PYTHONPATH=. pytest -q
 
-  sast:
+  security:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Run Bandit for SAST
       - name: Run Bandit
         run: |
           pip install bandit
           bandit -r .
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v3
+
+      # Run Semgrep for SAST (updated, container version)
+      - name: Run Semgrep scan
+        uses: docker://returntocorp/semgrep
         with:
-          semgrep_args: --config=p/ci
+          args: semgrep ci --config p/ci
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [build-and-test, security]
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build Docker image
+      - name: Build Docker image
+        run: docker build -t devops-api:ci .
+
